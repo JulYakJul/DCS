@@ -6,10 +6,12 @@ namespace DCS
     {
         // Количество принимаемых подключений к серверу
         public static int MAXNUMCLIENTS;
-        public static string? ipClient;
+        public static string? ServeripClient;
+        public static int ServerportClient;
+
         public static string? SITAIPClient;
-        public static int portClient;
         public static int SITAportClient;
+
         public static string? TCPLIPClient;
         public static int TCPLportClient;
         public const int tcpPort = 8080;
@@ -21,11 +23,11 @@ namespace DCS
                 .SetBasePath(directory)
                 .AddJsonFile($"appsettings.json", true, true).Build();
 
-            ipClient = config["ipAddressBSIS"];
-            portClient = Convert.ToInt32(config["portBSIS"]);
-            MAXNUMCLIENTS = Convert.ToInt32(config["maxCountClients"]);
-            SITAIPClient = config["SITAAdress"];
-            SITAportClient = Convert.ToInt32(config["SITAPort"]);
+            ServeripClient = "192.168.1.129";
+            ServerportClient = 8080;
+            MAXNUMCLIENTS = 200000000;
+            SITAIPClient = "192.168.1.95";
+            SITAportClient = 8080;
 
             DCSConnection dcsConnection = new();
             dcsConnection.StartServer();

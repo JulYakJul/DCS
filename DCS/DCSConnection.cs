@@ -19,7 +19,7 @@ namespace DCS
         TcpListener server;
 
         TcpClient[] clients = new TcpClient[Program.MAXNUMCLIENTS];
-        TcpClient ServerClient = new();
+        //TcpClient ServerClient = new();
         TcpClient SITAClient = new();
 
         bool stopNetwork;
@@ -45,18 +45,24 @@ namespace DCS
                     Thread acceptThread = new(AcceptClients);
                     acceptThread.Start();
 
-                    Console.WriteLine("Сервер запущен");
+                    // Отправьте файл на FTP-сервер
+                    //string filePath = "C:\\Users\\D\\Downloads\\Telegram Desktop\\TestDCS.txt";
+                    //string fileName = "TestDCS.txt";
 
-                    string filePath = "C:\\Users\\DemidOffice\\Desktop\\Test\\TestDCS.txt";
-                    string fileName = "TestDCS.txt";
+                    //Console.WriteLine("Сервер запущен");
 
-                    FtpClient ftpClient = new FtpClient("i9.files.com")
-                    {
-                        Credentials = new NetworkCredential("alenforgot@gmail.com", "gavri1lA123)"),
-                    };
 
-                    // Отправка файла на FTP-сервер в папку /files
-                    SendFileToFTP(ftpClient, filePath, fileName);
+                    //FtpClient ftpClient = new FtpClient("i9.files.com")
+                    //{
+                    //    Credentials = new NetworkCredential("alenforgot@gmail.com", "gavri1lA123)"),
+                    //};
+
+                    //// Отправка файла на FTP-сервер в папку /files
+                    //SendFileToFTP(ftpClient, filePath, fileName);
+                    //SITAClient.Connect(IPAddress.Parse(Program.SITAIPClient), Program.SITAportClient);
+                    //SendToClients(File.ReadAllText(filePath), 0, SITAClient);
+
+
                 }
                 catch (Exception ex)
                 {
@@ -80,7 +86,7 @@ namespace DCS
                     this.clients[countClient] = server.AcceptTcpClient();
                     Thread readThread = new(ReceiveRun);
                     readThread.Start(countClient);
-                    Console.WriteLine("Подключился клиент");
+                    Console.WriteLine("Подключился клиент " + ((IPEndPoint)this.clients[countClient].Client.RemoteEndPoint).Address.ToString());
                     countClient++;
                 }
                 catch (Exception ex)
@@ -112,18 +118,8 @@ namespace DCS
                         stream = Encoding.Default.GetString(buffer);
                         string[] messages = stream.Split(new[] { "\r\n\r\n", "\r\n\n" }, StringSplitOptions.RemoveEmptyEntries);
 
-                        foreach (string line in messages)
-                        {
-                            SITAClient.Connect(IPAddress.Parse(Program.SITAIPClient), Program.SITAportClient);
-                            ServerClient.Connect(IPAddress.Parse(Program.SITAIPClient), Program.SITAportClient);
-                            SendToClients(line, (int)num, ServerClient);
-                            SendToClients(line, (int)num, SITAClient);
+                        messages.ToList().ForEach(x => Console.WriteLine(x));
 
-                            // Отправьте файл на FTP-сервер
-                            //string filePath = "C:\\Users\\DemidOffice\\Desktop\\Test";
-                            //string fileName = "TestDCS.txt";
-                            //SendFileToFTP(ftpClient, filePath, fileName);
-                        }
                     }
                 }
                 catch (Exception ex)
@@ -145,8 +141,8 @@ namespace DCS
             {
                 ftpClient.Connect();
 
-                string remoteDirectory = "test"; //путь к целевой папке
-                string remotePath = remoteDirectory + "/" + remoteFileName;
+                //string remoteDirectory = "test"; //путь к целевой папке
+                string remotePath = remoteFileName;
 
                 if (!File.Exists(localFilePath))
                 {
@@ -155,13 +151,14 @@ namespace DCS
                 }
 
                 // существует ли целевая папка на FTP-сервере
-                if (!ftpClient.DirectoryExists(remoteDirectory))
-                {
-                    Console.WriteLine($"Папка {remoteDirectory} не существует на FTP-сервере.");
-                    return false; 
-                }
+                //if (!ftpClient.DirectoryExists(remoteDirectory))
+                //{
+                //    Console.WriteLine($"Папка {remoteDirectory} не существует на FTP-сервере.");
+                //    return false; 
+                //}
 
-                ftpClient.UploadFile(localFilePath, remotePath);
+                
+                var status = ftpClient.UploadFile(localFilePath, remotePath);
 
                 Console.WriteLine($"Файл {remoteFileName} успешно отправлен на FTP-сервер");
                 return true;
